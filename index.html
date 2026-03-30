@@ -51,13 +51,6 @@
   .course-btn.active .course-pill{background:rgba(74,222,128,.15);color:var(--accent);}
   .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:0;margin-right:4px;flex-shrink:0;}
   .course-btn.has-data .dot{opacity:1;}
-  .course-info{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
-  .pct-bar-wrap{width:48px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
-  .pct-bar{height:100%;border-radius:2px;transition:width .4s ease;}
-  .pct-bar.high{background:var(--presente);}
-  .pct-bar.mid{background:var(--accent2,#f59e0b);}
-  .pct-bar.low{background:var(--ausente);}
-  .pct-label{font-size:.58rem;color:var(--muted);letter-spacing:.04em;}
 
   /* CONTENT */
   .content{padding:1.8rem;}
@@ -190,25 +183,6 @@
   .justif-quick-btn{padding:.25rem .65rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Mono',monospace;font-size:.62rem;cursor:pointer;transition:all .15s;}
   .justif-quick-btn:hover{border-color:var(--justificado);color:var(--justificado);}
 
-  /* MODAL TRASLADO */
-  #modalTraslado .modal{width:500px;max-width:100%;}
-  .traslado-alumno{font-size:.82rem;font-weight:500;padding:.65rem .9rem;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:8px;color:var(--justificado);margin-bottom:1.2rem;}
-  .traslado-label{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
-  .curso-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:1rem;}
-  .curso-option{padding:.5rem .3rem;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;text-align:center;transition:all .15s;}
-  .curso-option:hover:not(.curso-disabled):not(.curso-actual){border-color:var(--justificado);color:var(--justificado);}
-  .curso-option.curso-selected{border-color:var(--justificado);background:rgba(96,165,250,.15);color:var(--justificado);font-weight:500;}
-  .curso-option.curso-actual{border-color:var(--accent);color:var(--accent);cursor:default;opacity:.7;}
-  .curso-option.curso-disabled{opacity:.35;cursor:not-allowed;}
-  .nivel-sep{font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:.7rem 0 .3rem;grid-column:1/-1;}
-  .traslado-info{font-size:.68rem;color:var(--muted);line-height:1.6;padding:.6rem .8rem;background:var(--surface2);border-radius:7px;margin-top:.5rem;}
-  .traslado-info strong{color:var(--text);}
-  .btn-transfer{padding:.45rem 1.2rem;border-radius:7px;border:none;background:var(--justificado);color:#000;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;cursor:pointer;}
-  .btn-transfer:hover{opacity:.85;}
-  .btn-transfer:disabled{opacity:.4;cursor:not-allowed;}
-  .btn-mover{background:none;border:none;color:var(--muted);font-size:.65rem;cursor:pointer;padding:.2rem .4rem;border-radius:4px;transition:color .15s;font-family:'DM Mono',monospace;white-space:nowrap;}
-  .btn-mover:hover{color:var(--justificado);}
-
   /* SCROLLBAR */
   ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   @media(max-width:700px){main{grid-template-columns:1fr;}aside{position:static;height:auto;}}
@@ -226,8 +200,6 @@
       <button class="today-tag" onclick="irAHoy()">hoy</button>
     </div>
     <button class="btn-export-all" onclick="exportarTodo()">↓ Exportar todos los cursos</button>
-    <button onclick="syncManual()" title="Sincronizar ahora" style="background:none;border:1px solid var(--border);border-radius:8px;padding:.45rem .7rem;font-size:.8rem;cursor:pointer;color:var(--muted);transition:all .15s;" onmouseover="this.style.color='var(--presente)'" onmouseout="this.style.color='var(--muted)'">⟳</button>
-    <div id="saveStatus" style="min-width:90px;text-align:right"></div>
   </div>
 </header>
 
@@ -302,22 +274,6 @@
   </div>
 </div>
 
-<!-- MODAL TRASLADO -->
-<div class="modal-overlay" id="modalTraslado" onclick="if(event.target===this)cerrarModal('modalTraslado')">
-  <div class="modal">
-    <div class="modal-title">Cambio de curso</div>
-    <div class="modal-sub">El historial de asistencia del alumno quedará guardado en el curso de origen. En el curso de destino comenzará sin registros previos.</div>
-    <div class="traslado-alumno" id="trasladoNombre"></div>
-    <div class="traslado-label">Selecciona el curso de destino</div>
-    <div class="curso-grid" id="cursoGrid"></div>
-    <div class="traslado-info" id="trasladoInfo" style="display:none"></div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="cerrarModal('modalTraslado')">Cancelar</button>
-      <button class="btn-transfer" id="btnConfirmarTraslado" onclick="confirmarTraslado()" disabled>Confirmar traslado</button>
-    </div>
-  </div>
-</div>
-
 <main>
   <aside id="sidebar"></aside>
   <section class="content" id="contentArea">
@@ -349,128 +305,16 @@ const fmtDia  =iso=>fromISO(iso).toLocaleDateString('es-CL',{day:'2-digit',month
 const mesNombre=iso=>fromISO(iso).toLocaleDateString('es-CL',{month:'long',year:'numeric'});
 
 // ═══════════════════════════════
-//  STATE + GOOGLE SHEETS
+//  STATE
 // ═══════════════════════════════
-const GS_URL='https://script.google.com/macros/s/AKfycbzhyqqYLOX0L8oWu7Hyf1CnZVoTEkvJ64MaoEx6mqouCATT4pQRBVwIcljCWYNzyhN6/exec';
-const SK='asist_v7';
+const SK='asist_v5';
 let state={};
 let cursoActivo=null;
 let fechaActiva=todayISO();
 let searchTerm='';
-let _saveTimer=null;
-let _saving=false;
-let _pendingSave=false;
-let _lastHash='';
 
-async function gsGet(key){
-  try{
-    const r=await fetch(GS_URL,{
-      method:'POST',
-      redirect:'follow',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'get',key:key})
-    });
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const txt=await r.text();
-    return JSON.parse(txt);
-  }catch(e){throw e;}
-}
-
-async function gsSet(key,value){
-  try{
-    const r=await fetch(GS_URL,{
-      method:'POST',
-      redirect:'follow',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'set',key:key,value:value})
-    });
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const txt=await r.text();
-    return JSON.parse(txt);
-  }catch(e){throw e;}
-}
-
-async function loadState(){
-  try{
-    const r=await gsGet(SK);
-    if(r&&r.ok&&r.value){
-      state=JSON.parse(r.value);_lastHash=r.value;
-      try{localStorage.setItem(SK,r.value);}catch(e){}
-      return;
-    }
-  }catch(e){showToast('⚠️ Sin conexión — cargando datos locales','warn');}
-  try{
-    const local=localStorage.getItem(SK)||localStorage.getItem('asist_v6')||localStorage.getItem('asist_v5');
-    if(local){state=JSON.parse(local);await persistToSheets();return;}
-  }catch(e){}
-  state={};
-}
-
-async function persistToSheets(){
-  if(_saving){_pendingSave=true;return;}
-  _saving=true;
-  try{
-    const json=JSON.stringify(state);
-    const r=await gsSet(SK,json);
-    if(r&&r.ok){_lastHash=json;try{localStorage.setItem(SK,json);}catch(e){}}
-    else throw new Error('no ok');
-  }catch(e){
-    try{localStorage.setItem(SK,JSON.stringify(state));}catch(e2){}
-    showToast('⚠️ No se pudo guardar en Google Sheets. Guardado localmente.','warn');
-  }finally{
-    _saving=false;
-    if(_pendingSave){_pendingSave=false;persistToSheets();}
-  }
-}
-
-function saveState(){
-  try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
-  setSaveStatus('saving');
-  clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(async()=>{
-    await persistToSheets();
-    setSaveStatus('saved');
-    _saveTimer=null;
-  },900);
-}
-
-async function syncFromSheets(){
-  if(_saving||_saveTimer)return;
-  try{
-    const r=await gsGet(SK);
-    if(!r||!r.ok||!r.value)return;
-    if(r.value===_lastHash)return;
-    _lastHash=r.value;
-    if(JSON.stringify(state)===r.value)return;
-    state=JSON.parse(r.value);
-    try{localStorage.setItem(SK,r.value);}catch(e){}
-    NIVELES.forEach(niv=>niv.cursos.forEach(c=>initCurso(getCursoKey(niv.key,c))));
-    buildSidebar();
-    if(cursoActivo)renderContent();
-    setSaveStatus('synced');
-    showToast('🔄 Datos actualizados desde otro dispositivo','ok');
-  }catch(e){}
-}
-
-async function syncManual(){
-  _lastHash='';setSaveStatus('saving');
-  await syncFromSheets();
-  setSaveStatus('saved');
-}
-
-function setSaveStatus(status){
-  const el=document.getElementById('saveStatus');
-  if(!el)return;
-  const map={
-    saving:{icon:'⟳',txt:'Guardando…',color:'var(--muted)'},
-    saved:{icon:'✓',txt:'Guardado',color:'var(--presente)'},
-    synced:{icon:'🔄',txt:'Sincronizado',color:'var(--justificado)'},
-    error:{icon:'⚠',txt:'Error',color:'var(--ausente)'},
-  };
-  const s=map[status]||map.saved;
-  el.innerHTML=`<span style="color:${s.color};font-size:.68rem;display:flex;align-items:center;gap:.3rem">${s.icon} ${s.txt}</span>`;
-  if(status==='synced')setTimeout(()=>setSaveStatus('saved'),3000);
-}
+function loadState(){try{const r=localStorage.getItem(SK);if(r)state=JSON.parse(r);}catch(e){state={};}}
+function saveState(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
 const getCursoKey=(nk,c)=>nk+'__'+c;
 
 function initCurso(key){
@@ -705,23 +549,6 @@ function confirmarJustif(){
 // ═══════════════════════════════
 //  SIDEBAR
 // ═══════════════════════════════
-function calcPctCurso(key){
-  // Porcentaje de asistencia acumulado (Presente / total registros con valor)
-  initCurso(key);
-  const alumnos=getAlumnos(key);
-  if(!alumnos.length)return null;
-  const dias=Object.keys(state[key].dias);
-  if(!dias.length)return null;
-  let totalP=0,totalRegistros=0;
-  dias.forEach(f=>{
-    (state[key].dias[f]||[]).forEach(e=>{
-      if(e!==null){totalRegistros++;if(e==='Presente')totalP++;}
-    });
-  });
-  if(!totalRegistros)return null;
-  return Math.round((totalP/totalRegistros)*100);
-}
-
 function buildSidebar(){
   let h='';
   NIVELES.forEach(niv=>{
@@ -732,24 +559,9 @@ function buildSidebar(){
       const est=state[key].dias[fechaActiva]||[];
       const reg=est.filter(e=>e!==null).length;
       const hayDatos=Object.keys(state[key].dias).some(d=>(state[key].dias[d]||[]).some(e=>e!==null));
-      const pct=calcPctCurso(key);
-      const pctClass=pct===null?'':pct>=85?'high':pct>=70?'mid':'low';
-      const pctColor=pct===null?'var(--muted)':pct>=85?'var(--presente)':pct>=70?'#f59e0b':'var(--ausente)';
-
-      const infoRight = al.length===0
-        ? `<span class="course-pill">sin lista</span>`
-        : `<div class="course-info">
-            <span class="course-pill">${reg}/${al.length} hoy</span>
-            ${pct!==null?`
-            <div style="display:flex;align-items:center;gap:4px">
-              <div class="pct-bar-wrap"><div class="pct-bar ${pctClass}" style="width:${pct}%"></div></div>
-              <span class="pct-label" style="color:${pctColor};font-weight:500">${pct}%</span>
-            </div>`:''}
-          </div>`;
-
       h+=`<button class="course-btn ${cursoActivo===key?'active':''} ${hayDatos?'has-data':''}" onclick="selectCurso('${niv.key}','${c}')">
         <span style="display:flex;align-items:center;gap:4px"><span class="dot"></span>${c}</span>
-        ${infoRight}
+        <span class="course-pill">${al.length>0?`${reg}/${al.length}`:'sin lista'}</span>
       </button>`;
     });
     h+=`</div>`;
@@ -812,7 +624,6 @@ function renderContent(){
         <button class="toggle-btn ${est==='Ausente'?'active-A':''}"     onclick="setE(${i},'Ausente')"     title="Ausente">A</button>
         <button class="toggle-btn ${est==='Justificado'?'active-J':''}" onclick="setJ(${i})"               title="Justificado">J</button>
       </div>
-      <button class="btn-mover" onclick="abrirTraslado(${i})" title="Cambiar de curso">⇄</button>
     </div>`;
   }).join('');
 
@@ -1003,93 +814,21 @@ function generarWorkbookCurso(key){
     XLSX.utils.book_append_sheet(wb,ws,'Reporte por Alumno');
   }
 
-  // ── HOJA 3a: Reporte mensual por curso (bloque por mes, todos los alumnos) ──
+  // ── HOJA 3: Reporte mensual del curso ──────────────────────────────────
   {
+    // Agrupar días por mes
     const porMes={};
     dias.forEach(f=>{const m=f.slice(0,7);if(!porMes[m])porMes[m]=[];porMes[m].push(f);});
     const meses=Object.keys(porMes).sort();
 
-    const rows=[
-      [`REPORTE MENSUAL POR CURSO — ${label}`],
-      [`Generado: ${new Date().toLocaleDateString('es-CL')}`],
-      [`Total alumnos: ${alumnos.length}   ·   Meses con registro: ${meses.length}`],
-      []
-    ];
+    const rows=[[`REPORTE MENSUAL — ${label}`],[`Generado: ${new Date().toLocaleDateString('es-CL')}`],[]];
 
     meses.forEach(mes=>{
       const diasMes=porMes[mes];
       const nomMes=mesNombre(mes+'-01');
-      // Cabecera del mes
-      rows.push([`── ${nomMes.toUpperCase()} ──   (${diasMes.length} día${diasMes.length!==1?'s':''} de clase)`]);
-      rows.push(['N°','Apellidos','Nombre','Días de clase','Presencias','Ausencias','Justificados','% Asistencia','Días que faltó']);
-
-      // Totales del curso para ese mes
-      let totP=0,totA=0,totJ=0;
+      rows.push([`MES: ${nomMes.toUpperCase()}`]);
+      rows.push(['N°','Apellidos','Nombre','Días del mes','Presencias','Ausencias','Justificados','% Asistencia']);
       resumen.forEach((r,i)=>{
-        let p=0,a=0,j=0,faltos=[];
-        diasMes.forEach(f=>{
-          const e=state[key].dias[f]?state[key].dias[f][i]:null;
-          if(e==='Presente'){p++;totP++;}
-          else if(e==='Ausente'){a++;totA++;faltos.push(fmtDia(f));}
-          else if(e==='Justificado'){j++;totJ++;faltos.push(fmtDia(f)+' (J)');}
-        });
-        const pct=diasMes.length>0?((p/diasMes.length)*100).toFixed(1)+'%':'—';
-        rows.push([i+1,r.apellido,r.nombre,diasMes.length,p,a,j,pct,faltos.join(', ')||'—']);
-      });
-
-      // Fila resumen del curso ese mes
-      const totSlots=diasMes.length*alumnos.length;
-      const pctCurso=totSlots>0?((totP/totSlots)*100).toFixed(1)+'%':'—';
-      rows.push(['','','TOTAL CURSO',diasMes.length,totP,totA,totJ,pctCurso,'']);
-      rows.push([]);
-    });
-
-    const ws=XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols']=[{wch:5},{wch:22},{wch:18},{wch:14},{wch:12},{wch:12},{wch:14},{wch:14},{wch:40}];
-    XLSX.utils.book_append_sheet(wb,ws,'Mensual por Curso');
-  }
-
-  // ── HOJA 3b: Reporte mensual por alumno (pivot: alumno en filas, meses en columnas) ──
-  {
-    const porMes={};
-    dias.forEach(f=>{const m=f.slice(0,7);if(!porMes[m])porMes[m]=[];porMes[m].push(f);});
-    const meses=Object.keys(porMes).sort();
-    const nomMeses=meses.map(m=>mesNombre(m+'-01'));
-
-    // Cabecera: N° | Apellidos | Nombre | [Mes1 P] [Mes1 A] [Mes1 J] [Mes1 %] | [Mes2...] | Total P | Total A | Total J | % Global
-    const headerRow1=['','',''];
-    const headerRow2=['N°','Apellidos','Nombre'];
-    meses.forEach((_,mi)=>{
-      headerRow1.push(nomMeses[mi].toUpperCase(),'','','');
-      headerRow2.push('Presencias','Ausencias','Justificados','% Asist.');
-    });
-    headerRow1.push('TOTALES','','','');
-    headerRow2.push('Total P','Total A','Total J','% Global');
-
-    const rows=[
-      [`REPORTE MENSUAL POR ALUMNO — ${label}`],
-      [`Generado: ${new Date().toLocaleDateString('es-CL')}`],
-      [],
-      headerRow1,
-      headerRow2
-    ];
-
-    // Merges para los encabezados de mes (cada mes ocupa 4 columnas)
-    const merges=[
-      {s:{r:0,c:0},e:{r:0,c:headerRow1.length-1}}, // título
-    ];
-    meses.forEach((_,mi)=>{
-      const startCol=3+mi*4;
-      merges.push({s:{r:3,c:startCol},e:{r:3,c:startCol+3}});
-    });
-    // merge totales header
-    const totStart=3+meses.length*4;
-    merges.push({s:{r:3,c:totStart},e:{r:3,c:totStart+3}});
-
-    resumen.forEach((r,i)=>{
-      const fila=[i+1,r.apellido,r.nombre];
-      meses.forEach(mes=>{
-        const diasMes=porMes[mes];
         let p=0,a=0,j=0;
         diasMes.forEach(f=>{
           const e=state[key].dias[f]?state[key].dias[f][i]:null;
@@ -1098,43 +837,14 @@ function generarWorkbookCurso(key){
           else if(e==='Justificado')j++;
         });
         const pct=diasMes.length>0?((p/diasMes.length)*100).toFixed(1)+'%':'—';
-        fila.push(p,a,j,pct);
+        rows.push([i+1,r.apellido,r.nombre,diasMes.length,p,a,j,pct]);
       });
-      // Totales globales del alumno
-      const pctGlobal=dias.length>0?((r.totalP/dias.length)*100).toFixed(1)+'%':'—';
-      fila.push(r.totalP,r.totalA,r.totalJ,pctGlobal);
-      rows.push(fila);
+      rows.push([]);
     });
-
-    // Fila total del curso
-    const filaTotal=['','','TOTAL CURSO'];
-    meses.forEach(mes=>{
-      const diasMes=porMes[mes];
-      let tp=0,ta=0,tj=0;
-      resumen.forEach((_r,i)=>{
-        diasMes.forEach(f=>{
-          const e=state[key].dias[f]?state[key].dias[f][i]:null;
-          if(e==='Presente')tp++;
-          else if(e==='Ausente')ta++;
-          else if(e==='Justificado')tj++;
-        });
-      });
-      const totSlots=diasMes.length*alumnos.length;
-      const pct=totSlots>0?((tp/totSlots)*100).toFixed(1)+'%':'—';
-      filaTotal.push(tp,ta,tj,pct);
-    });
-    const gtP=resumen.reduce((s,r)=>s+r.totalP,0);
-    const gtA=resumen.reduce((s,r)=>s+r.totalA,0);
-    const gtJ=resumen.reduce((s,r)=>s+r.totalJ,0);
-    const gtSlots=dias.length*alumnos.length;
-    filaTotal.push(gtP,gtA,gtJ,gtSlots>0?((gtP/gtSlots)*100).toFixed(1)+'%':'—');
-    rows.push(filaTotal);
 
     const ws=XLSX.utils.aoa_to_sheet(rows);
-    ws['!merges']=merges;
-    // Anchos: N°, Apellidos, Nombre + 4 cols por mes + 4 totales
-    ws['!cols']=[{wch:5},{wch:22},{wch:18},...Array(meses.length*4+4).fill({wch:12})];
-    XLSX.utils.book_append_sheet(wb,ws,'Mensual por Alumno');
+    ws['!cols']=[{wch:5},{wch:22},{wch:16},{wch:12},{wch:12},{wch:12},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws,'Reporte Mensual');
   }
 
   // ── HOJA 4: Justificaciones ────────────────────────────────────────────
@@ -1294,169 +1004,15 @@ function exportarTodo(){
   XLSX.writeFile(wb,nombre);
 }
 
-// ═══════════════════════════════
-//  TRASLADO DE CURSO
-// ═══════════════════════════════
-let trasladoPending={idx:null,cursoDestino:null};
-
-function abrirTraslado(idx){
-  if(!cursoActivo)return;
-  const al=getAlumnos(cursoActivo)[idx];
-  trasladoPending={idx,cursoDestino:null};
-
-  const[nKey,cursoOrigen]=cursoActivo.split('__');
-  const nivOrigen=NIVELES.find(x=>x.key===nKey);
-
-  document.getElementById('trasladoNombre').textContent=
-    `${al.nombre} ${al.apellido}  ·  Origen: ${nivOrigen.label} ${cursoOrigen}`;
-  document.getElementById('trasladoInfo').style.display='none';
-  document.getElementById('btnConfirmarTraslado').disabled=true;
-
-  // Construir grilla de cursos
-  let h='';
-  NIVELES.forEach(niv=>{
-    h+=`<span class="nivel-sep">${niv.label}</span>`;
-    niv.cursos.forEach(c=>{
-      const key=getCursoKey(niv.key,c);
-      const esActual=key===cursoActivo;
-      const sinLista=getAlumnos(key).length===0&&!esActual;
-      h+=`<button class="curso-option ${esActual?'curso-actual':''} ${sinLista?'curso-disabled':''}"
-        id="co-${key.replace(/[^a-zA-Z0-9]/g,'_')}"
-        onclick="${esActual||sinLista?'':`selCursoDestino('${niv.key}','${c}')`}"
-        title="${esActual?'Curso actual':sinLista?'Sin lista de alumnos':''}">${c}</button>`;
-    });
-  });
-  document.getElementById('cursoGrid').innerHTML=h;
-  document.getElementById('modalTraslado').classList.add('open');
-}
-
-function selCursoDestino(nKey,c){
-  const key=getCursoKey(nKey,c);
-  trasladoPending.cursoDestino=key;
-
-  // Marcar seleccionado
-  document.querySelectorAll('.curso-option').forEach(el=>el.classList.remove('curso-selected'));
-  const id='co-'+key.replace(/[^a-zA-Z0-9]/g,'_');
-  const btn=document.getElementById(id);
-  if(btn)btn.classList.add('curso-selected');
-
-  // Info
-  const niv=NIVELES.find(x=>x.key===nKey);
-  const al=getAlumnos(cursoActivo)[trasladoPending.idx];
-  const destAlumnos=getAlumnos(key);
-  const infoEl=document.getElementById('trasladoInfo');
-  infoEl.style.display='';
-  infoEl.innerHTML=`<strong>${al.nombre} ${al.apellido}</strong> será trasladado a <strong>${niv.label} ${c}</strong>.<br>
-    Se agregará al final de la lista (posición ${destAlumnos.length+1}).<br>
-    Su historial en el curso actual quedará guardado.`;
-
-  document.getElementById('btnConfirmarTraslado').disabled=false;
-}
-
-function confirmarTraslado(){
-  const{idx,cursoDestino}=trasladoPending;
-  if(idx===null||!cursoDestino||!cursoActivo)return;
-
-  initCurso(cursoActivo);
-  initCurso(cursoDestino);
-
-  const alumnosOrigen=getAlumnos(cursoActivo);
-  const al=alumnosOrigen[idx];
-
-  // 1. Agregar alumno al curso destino
-  const alumnosDestino=state[cursoDestino].alumnos;
-  alumnosDestino.push({...al});
-  const newIdx=alumnosDestino.length-1;
-
-  // 2. Extender arrays de días en destino para el nuevo alumno (sin registros)
-  Object.keys(state[cursoDestino].dias).forEach(f=>{
-    while(state[cursoDestino].dias[f].length<=newIdx)
-      state[cursoDestino].dias[f].push(null);
-  });
-
-  // 3. Eliminar alumno del curso origen
-  //    — sacarlo de la lista de alumnos
-  alumnosOrigen.splice(idx,1);
-
-  //    — sacar su índice de cada día (y recorrer los índices siguientes)
-  Object.keys(state[cursoActivo].dias).forEach(f=>{
-    const arr=state[cursoActivo].dias[f];
-    if(arr.length>idx)arr.splice(idx,1);
-  });
-
-  //    — sacar sus observaciones
-  if(state[cursoActivo].obs){
-    Object.keys(state[cursoActivo].obs).forEach(f=>{
-      const o=state[cursoActivo].obs[f];
-      if(o&&o[idx]!==undefined){
-        // reindexar: borrar entrada idx, compactar claves numéricas superiores
-        const newO={};
-        Object.keys(o).forEach(k=>{
-          const ki=parseInt(k);
-          if(ki<idx)newO[k]=o[k];
-          else if(ki>idx)newO[String(ki-1)]=o[k];
-          // ki===idx se elimina
-        });
-        state[cursoActivo].obs[f]=newO;
-      }
-    });
-  }
-
-  saveState();
-  cerrarModal('modalTraslado');
-  buildSidebar();
-  renderContent();
-
-  // Feedback
-  const[nKey,c]=cursoDestino.split('__');
-  const niv=NIVELES.find(x=>x.key===nKey);
-  showToast(`<span style="color:var(--justificado)">⇄ Traslado completado</span><br><span style="color:var(--text2)">${al.nombre} ${al.apellido} → ${niv.label} ${c}</span>`,'info');
-}
-
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
-/* ── TOAST GENÉRICO ── */
-function showToast(msg, type='info'){
-  const colors={info:'var(--justificado)',warn:'#f59e0b',error:'var(--ausente)',ok:'var(--presente)'};
-  const t=document.createElement('div');
-  t.style.cssText='position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid '+colors[type]+';border-radius:10px;padding:.8rem 1.2rem;font-size:.75rem;color:var(--text);z-index:999;box-shadow:0 8px 30px rgba(0,0,0,.5);max-width:340px;line-height:1.5;';
-  t.innerHTML=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),4000);
-}
-
 // ═══════════════════════════════
-//  INIT ASÍNCRONO
+//  INIT
 // ═══════════════════════════════
-async function init(){
-  document.getElementById('contentArea').innerHTML=`
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:1rem;color:var(--muted);">
-      <div style="font-size:2rem;animation:spin 1s linear infinite">⟳</div>
-      <div style="font-size:.8rem">Conectando con Google Sheets…</div>
-    </div>`;
-
-  await loadState();
-
-  NIVELES.forEach(niv=>niv.cursos.forEach(c=>initCurso(getCursoKey(niv.key,c))));
-  updateDateDisplay();
-  buildSidebar();
-
-  document.getElementById('contentArea').innerHTML='<div class="empty">← Selecciona un curso para registrar asistencia</div>';
-  setSaveStatus('saved');
-
-  // Sync automático cada 20 segundos
-  setInterval(syncFromSheets, 20000);
-  document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')syncFromSheets();
-  });
-  window.addEventListener('focus', syncFromSheets);
-}
-
-const style=document.createElement('style');
-style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-document.head.appendChild(style);
-
-init();
+loadState();
+NIVELES.forEach(niv=>niv.cursos.forEach(c=>initCurso(getCursoKey(niv.key,c))));
+updateDateDisplay();
+buildSidebar();
 </script>
 </body>
 </html>
